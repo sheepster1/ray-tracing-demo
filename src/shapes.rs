@@ -7,11 +7,21 @@ pub struct Point {
     pub z: f64,
 }
 
+impl Point {
+    pub fn normalize_vector(&mut self) {
+        let length = (self.x * self.x + self.y * self.y + self.z * self.z).sqrt();
+        self.x = self.x / length;
+        self.y = self.y / length;
+        self.z = self.z / length;
+    }
+}
+
 pub struct Ray {
     pub origin: Point,
     pub direction: Point,
 }
 
+#[derive(Copy, Clone)]
 pub struct Color {
     pub r: u8,
     pub g: u8,
@@ -29,6 +39,7 @@ pub trait RayIntersectable {
 }
 
 pub struct Sphere {
+    pub id: u32,
     pub shape: Shape,
     pub center: Point,
     pub radius: f64,
@@ -53,7 +64,9 @@ impl RayIntersectable for Sphere {
             return None;
         }
 
-        let t = (-b - discriminant.sqrt()) / (2.0 * a);
+        let t1 = (-b - discriminant.sqrt()) / (2.0 * a);
+        let t2 = (-b + discriminant.sqrt()) / (2.0 * a);
+        let t = if t1 < t2 { t1 } else { t2 };
         let point = Point {
             x: ray.origin.x + t * ray.direction.x,
             y: ray.origin.y + t * ray.direction.y,
